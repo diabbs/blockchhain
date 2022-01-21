@@ -1,0 +1,59 @@
+// Diabycoin ICO
+
+//version of compile
+pragma solidity ^0.4.11
+
+
+contract diabycoin_ico {
+    
+    //Introducing the maximum number of diabycoin available for sell
+    uint public max_diabycoin = 1000000;
+
+    // Introducing thie USD to diabycoin conversion rate
+    uint public usd_to_diabycoin = 1000;
+
+    //Introducing the total number of diabycoin that have been bougth by investors
+    uint public total_diabycoin_bougth = 0;
+
+    //Mapping from the investors address to its equity in diabycoin and USD
+    mapping(address => uint) equity_diabycoin;
+    mapping(address => uint) equity_usd;
+
+    //Creating if an investors can by diabycoin (the modifier)
+    modifier can_buy_diabycoin(uint usd_invested) {
+        require(usd_invested * usd_to_diabycoin + total_diabycoin_bougth <= max_diabycoin); 
+        _;
+    }
+
+    //Getting the equity in diabycoin of an investor
+    function equity_in_diabycoin(address investor) external constant returns (uint) {
+        return equity_diabycoin(investor);
+    }
+
+    
+    //Getting the equity in USD of the investor
+    function equity_in_usd(address investor) external constant returns(uint){
+        return equity_usd(investor)
+    }
+    
+    //Buy diabycoin
+    function buy_diabycoin(address investor, uint usd_invested) external 
+    can_buy_diabycoin(usd_invested){
+        uint diabycoin_bougth = usd_invested * usd_to_diabycoin;
+        equity_diabycoin[investor] += diabycoin_bougth;
+        equity_usd[investor] =equity_diabycoin[investor] / 1000;
+        
+        total_diabycoin_bougth += diabycoin_bougth;
+        
+    }    
+    
+    //Selling diabycoin 
+    function Sell_diabycoin(address investor, uint diabycoin_sold) external {
+        equity_diabycoin[investor] -= diabycoin_sold;
+        equity_usd[investor] =equity_diabycoin[investor] / 1000;
+        
+        total_diabycoin_bougth -= diabycoin_sold;
+        
+    }  
+    
+}
